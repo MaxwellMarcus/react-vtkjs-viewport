@@ -14,10 +14,9 @@ import {
 import vtkInteractorStyleTrackballCamera from 'vtk.js/Sources/Interaction/Style/InteractorStyleTrackballCamera';
 import vtkImageMapper from 'vtk.js/Sources/Rendering/Core/ImageMapper';
 import vtkImageSlice from 'vtk.js/Sources/Rendering/Core/ImageSlice';
-import vtkImageMarchingCubes from 'vtk.js/Sources/Filters/General/ImageMarchingCubes';
-import { api as dicomwebClientApi } from 'dicomweb-client';
 import vtkMapper from 'vtk.js/Sources/Rendering/Core/Mapper';
 import vtkActor from 'vtk.js/Sources/Rendering/Core/Actor';
+import vtkImageMarchingCubes from 'vtk.js/Sources/Filters/General/ImageMarchingCubes';
 import vtkImageData from 'vtk.js/Sources/Common/DataModel/ImageData';
 import vtkDataArray from 'vtk.js/Sources/Common/Core/DataArray';
 import cornerstoneTools from 'cornerstone-tools';
@@ -27,31 +26,271 @@ import vtkImageOutlineFilter from 'vtk.js/Sources/Filters/General/ImageOutlineFi
 
 const segmentationModule = cornerstoneTools.getModule('segmentation');
 
-const url = 'https://server.dcmjs.org/dcm4chee-arc/aets/DCM4CHEE/rs';
-const studyInstanceUID =
-  '1.3.12.2.1107.5.2.32.35162.30000015050317233592200000046';
-const mrSeriesInstanceUID =
-  '1.3.12.2.1107.5.2.32.35162.1999123112191238897317963.0.0.0';
-// const segSeriesInstanceUID =
-//   '1.3.12.2.1107.5.2.32.35162.1999123112191238897317963.0.0.0';
-const searchInstanceOptions = {
-  studyInstanceUID,
-};
+const segURL = `${window.location.origin}/seg/RoiCollection_Combined.dcm`;
 
-// MR  1.3.12.2.1107.5.2.32.35162.1999123112191238897317963.0.0.0
-// SEG 	1.2.276.0.7230010.3.1.3.296485376.8.1542816659.201008
+const ROOT_URL =
+  window.location.hostname === 'localhost'
+    ? window.location.host
+    : window.location.hostname;
 
-const segURL = `${window.location.origin}/brainSeg/brainSeg.dcm`;
-
-// const segURL =
-//   'https://server.dcmjs.org/dcm4chee-arc/aets/DCM4CHEE/rs/studies/1.3.12.2.1107.5.2.32.35162.30000015050317233592200000046/series/1.2.276.0.7230010.3.1.3.296485376.8.1542816659.201008/instances/1.2.276.0.7230010.3.1.4.296485376.8.1542816659.201009';
-
-function loadDataset(imageIds, displaySetInstanceUid) {
-  const imageDataObject = getImageData(imageIds, displaySetInstanceUid);
-
-  loadImageData(imageDataObject);
-  return imageDataObject;
-}
+const imageIds = [
+  `dicomweb://${ROOT_URL}/background/DICOM000.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM001.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM002.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM003.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM004.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM005.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM006.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM007.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM008.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM009.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM010.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM011.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM012.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM013.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM014.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM015.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM016.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM017.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM018.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM019.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM020.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM021.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM022.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM023.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM024.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM025.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM026.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM027.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM028.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM029.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM030.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM031.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM032.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM033.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM034.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM035.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM036.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM037.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM038.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM039.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM040.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM041.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM042.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM043.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM044.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM045.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM046.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM047.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM048.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM049.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM050.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM051.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM052.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM053.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM054.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM055.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM056.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM057.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM058.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM059.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM060.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM061.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM062.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM063.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM064.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM065.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM066.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM067.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM068.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM069.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM070.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM071.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM072.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM073.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM074.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM075.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM076.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM077.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM078.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM079.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM080.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM081.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM082.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM083.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM084.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM085.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM086.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM087.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM088.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM089.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM090.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM091.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM092.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM093.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM094.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM095.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM096.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM097.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM098.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM099.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM100.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM101.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM102.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM103.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM104.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM105.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM106.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM107.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM108.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM109.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM110.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM111.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM112.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM113.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM114.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM115.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM116.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM117.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM118.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM119.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM120.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM121.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM122.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM123.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM124.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM125.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM126.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM127.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM128.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM129.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM130.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM131.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM132.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM133.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM134.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM135.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM136.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM137.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM138.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM139.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM140.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM141.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM142.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM143.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM144.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM145.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM146.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM147.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM148.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM149.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM150.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM151.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM152.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM153.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM154.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM155.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM156.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM157.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM158.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM159.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM160.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM161.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM162.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM163.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM164.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM165.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM166.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM167.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM168.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM169.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM170.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM171.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM172.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM173.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM174.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM175.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM176.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM177.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM178.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM179.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM180.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM181.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM182.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM183.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM184.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM185.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM186.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM187.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM188.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM189.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM190.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM191.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM192.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM193.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM194.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM195.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM196.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM197.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM198.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM199.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM200.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM201.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM202.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM203.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM204.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM205.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM206.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM207.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM208.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM209.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM210.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM211.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM212.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM213.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM214.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM215.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM216.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM217.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM218.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM219.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM220.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM221.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM222.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM223.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM224.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM225.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM226.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM227.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM228.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM229.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM230.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM231.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM232.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM233.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM234.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM235.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM236.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM237.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM238.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM239.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM240.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM241.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM242.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM243.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM244.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM245.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM246.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM247.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM248.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM249.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM250.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM251.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM252.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM253.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM254.dcm`,
+  `dicomweb://${ROOT_URL}/background/DICOM255.dcm`,
+];
 
 function makeLabelMapColorTransferFunction(lablemapColorLUT) {
   const labelMap = {
@@ -70,7 +309,7 @@ function makeLabelMapColorTransferFunction(lablemapColorLUT) {
 
 const buildColorTransferFunction = (labelmap, colorLUT, opacity) => {
   // TODO -> It seems to crash if you set it higher than 256??
-  const numColors = Math.min(256, colorLUT.length);
+  // const numColors = Math.min(256, colorLUT.length);
 
   // This commented out code will read the actual labelmap values, but we have one (?) volume
 
@@ -93,55 +332,7 @@ const buildColorTransferFunction = (labelmap, colorLUT, opacity) => {
   labelmap.ofun.addPointLong(1, 1.0, 0.5, 1.0); // All labels full opacity
 };
 
-function createStudyImageIds(baseUrl, studySearchOptions) {
-  const SOP_INSTANCE_UID = '00080018';
-  const SERIES_INSTANCE_UID = '0020000E';
-
-  const client = new dicomwebClientApi.DICOMwebClient({ url });
-
-  return new Promise((resolve, reject) => {
-    client.retrieveStudyMetadata(studySearchOptions).then(instances => {
-      const imageIds = instances.map(metaData => {
-        const imageId =
-          `wadors:` +
-          baseUrl +
-          '/studies/' +
-          studyInstanceUID +
-          '/series/' +
-          metaData[SERIES_INSTANCE_UID].Value[0] +
-          '/instances/' +
-          metaData[SOP_INSTANCE_UID].Value[0] +
-          '/frames/1';
-
-        window.cornerstoneWADOImageLoader.wadors.metaDataManager.add(
-          imageId,
-          metaData
-        );
-
-        return imageId;
-      });
-
-      resolve(imageIds);
-    }, reject);
-  });
-}
-
-const generateSegVolume = async (
-  imageDataObject,
-  segP10ArrayBuffer,
-  imageIds
-) => {
-  const imagePromises = [];
-
-  //Fetch images with cornerstone just to cache the metadata needed to format the SEG.
-  for (let i = 0; i < imageIds.length; i++) {
-    const promise = window.cornerstone.loadAndCacheImage(imageIds[i]);
-
-    imagePromises.push(promise);
-  }
-
-  await Promise.all(imagePromises);
-
+const generateSegVolume = (imageDataObject, segP10ArrayBuffer, imageIds) => {
   // Use dcmjs to extract a labelmap from the SEG.
   const {
     labelmapBuffer,
@@ -217,47 +408,35 @@ class VTK4UPExample extends Component {
   async componentDidMount() {
     this.apis = [];
 
-    const imageIds = await createStudyImageIds(url, searchInstanceOptions);
-
-    let mrImageIds = imageIds.filter(imageId =>
-      imageId.includes(mrSeriesInstanceUID)
-    );
-
-    // Sort the imageIds so the SEG is allocated correctly.
-    mrImageIds.sort((imageIdA, imageIdB) => {
-      const imagePlaneA = cornerstone.metaData.get(
-        'imagePlaneModule',
-        imageIdA
-      );
-      const imagePlaneB = cornerstone.metaData.get(
-        'imagePlaneModule',
-        imageIdB
-      );
-
-      return (
-        imagePlaneA.imagePositionPatient[0] -
-        imagePlaneB.imagePositionPatient[0]
-      );
-    });
-
-    const mrImageDataObject = loadDataset(mrImageIds, 'mrDisplaySet');
-
     const seg = await fetchSegArrayBuffer(segURL);
 
-    const { labelmapDataObject, labelmapColorLUT } = await generateSegVolume(
-      mrImageDataObject,
-      seg,
-      mrImageIds
-    );
+    // Pre-retrieve the images for demo purposes
+    // Note: In a real application you wouldn't need to do this
+    // since you would probably have the image metadata ahead of time.
+    // In this case, we preload the images so the WADO Image Loader can
+    // read and store all of their metadata and subsequently the 'getImageData'
+    // can run properly (it requires metadata).
+    const promises = imageIds.map(imageId => {
+      return cornerstone.loadAndCacheImage(imageId);
+    });
+
+    const imageDataObject = await Promise.all(promises).then(() => {
+      const displaySetInstanceUid = '12345';
+      return getImageData(imageIds, displaySetInstanceUid);
+    });
 
     const onAllPixelDataInsertedCallback = () => {
-      // MR
-      /////// Replace with image mapping. ///////
+      const { labelmapDataObject, labelmapColorLUT } = generateSegVolume(
+        imageDataObject,
+        seg,
+        imageIds
+      );
 
       // Use one dataset, and 3 actors/mappers for the 3 different views
-      const mrImageData = mrImageDataObject.vtkImageData;
+      // background image
+      const imageData = imageDataObject.vtkImageData;
 
-      const direction = mrImageData.getDirection();
+      const direction = imageData.getDirection();
       const planes = [
         direction.slice(0, 3),
         direction.slice(3, 6),
@@ -287,7 +466,7 @@ class VTK4UPExample extends Component {
         i => Math.round(i) === -1
       );
 
-      const range = mrImageData
+      const range = imageData
         .getPointData()
         .getScalars()
         .getRange();
@@ -301,7 +480,7 @@ class VTK4UPExample extends Component {
         const imageMapper = vtkImageMapper.newInstance();
         const imageActor = vtkImageSlice.newInstance();
 
-        imageMapper.setInputData(mrImageData);
+        imageMapper.setInputData(imageData);
         imageActor.setMapper(imageMapper);
 
         imageActor.getProperty().setColorWindow(windowWidth);
@@ -310,8 +489,7 @@ class VTK4UPExample extends Component {
         imageActors.push(imageActor);
       }
 
-      // SEG
-
+      // seg volume
       const segRange = labelmapDataObject
         .getPointData()
         .getScalars()
@@ -334,12 +512,10 @@ class VTK4UPExample extends Component {
       segActor.setMapper(segMapper);
       segMapper.setInputConnection(marchingCube.getOutputPort());
 
-      // labelmapActors for 2D views
-
+      // seg labelmapActors for 2D views
       const outline = vtkImageOutlineFilter.newInstance();
       // opacity function for the outline filter
       const labelmapOFun = vtkPiecewiseFunction.newInstance();
-
       labelmapOFun.addPoint(0, 0); // our background value, 0, will be invisible
       labelmapOFun.addPoint(0.5, 1);
       labelmapOFun.addPoint(1, 1);
@@ -347,7 +523,7 @@ class VTK4UPExample extends Component {
       const labelmapActors = [];
 
       outline.setInputData(labelmapDataObject);
-      outline.setSlicingMode(2);
+      outline.setSlicingMode(0);
 
       for (let i = 0; i < 3; i++) {
         const labelmapMapper = vtkImageMapper.newInstance();
@@ -407,14 +583,15 @@ class VTK4UPExample extends Component {
         },
         marchingCubesActor: [segActor],
         paintFilterLabelMapImageData: labelmapDataObject,
-        paintFilterBackgroundImageData: mrImageDataObject.vtkImageData,
+        paintFilterBackgroundImageData: imageDataObject.vtkImageData,
         labelmapColorLUT,
         displayCrosshairs: false,
         planeMap,
       });
     };
 
-    mrImageDataObject.onAllPixelDataInserted(onAllPixelDataInsertedCallback);
+    imageDataObject.onAllPixelDataInserted(onAllPixelDataInsertedCallback);
+    loadImageData(imageDataObject);
   }
 
   storeApi = (viewportIndex, type) => {

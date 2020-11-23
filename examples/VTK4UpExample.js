@@ -135,6 +135,7 @@ const generateSegVolume = async (
 
   //Fetch images with cornerstone just to cache the metadata needed to format the SEG.
   for (let i = 0; i < imageIds.length; i++) {
+    console.log(imageIds[i])
     const promise = window.cornerstone.loadAndCacheImage(imageIds[i]);
 
     imagePromises.push(promise);
@@ -168,6 +169,8 @@ const generateSegVolume = async (
     numberOfComponents: 1, // labelmap with single component
     values: Uint16LabelmapBuffer,
   });
+
+  console.log(dataArray.getData())
 
   labelmapDataObject.getPointData().setScalars(dataArray);
   labelmapDataObject.setDimensions(...imageDataObject.dimensions);

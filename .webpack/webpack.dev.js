@@ -31,6 +31,8 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
+const CopyPlugin = require('copy-webpack-plugin')
+
 const ENTRY_VTK_EXT = path.join(__dirname, './../src/index.js');
 const ENTRY_EXAMPLES = path.join(__dirname, './../examples/index.js');
 const SRC_PATH = path.join(__dirname, './../src');
@@ -96,6 +98,24 @@ module.exports = {
         ignore: ['index.html', '.DS_Store'],
       },
     ]),
+    new CopyPlugin([
+      {
+      from: path.join(__dirname, 'node_modules', 'itk', 'WebWorkers'),
+      to: path.join(__dirname, 'dist', 'itk', 'WebWorkers'),
+      },
+      {
+      from: path.join(__dirname, 'node_modules', 'itk', 'ImageIOs'),
+      to: path.join(__dirname, 'dist', 'itk', 'ImageIOs'),
+      },
+      {
+      from: path.join(__dirname, 'node_modules', 'itk', 'PolyDataIOs'),
+      to: path.join(__dirname, 'dist', 'itk', 'PolyDataIOs'),
+      },
+      {
+      from: path.join(__dirname, 'node_modules', 'itk', 'MeshIOs'),
+      to: path.join(__dirname, 'dist', 'itk', 'MeshIOs'),
+      },
+    ])
   ],
   // Fix for `cornerstone-wado-image-loader` fs dep
   node: { fs: 'empty' },

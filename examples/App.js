@@ -11,7 +11,7 @@ import VTKRotatableCrosshairsExample from './VTKRotatableCrosshairsExample.js';
 import VTK4UpExample from './VTK4UpExample.js';
 import VTKMPRRotateExample from './VTKMPRRotateExample.js';
 import VTKVolumeRenderingExample from './VTKVolumeRenderingExample.js';
-import VtkTest from './vtkTest.js';
+import VTK3DSegRenderingExample from './VTK3DSegRenderingExample.js';
 
 function LinkOut({ href, text }) {
   return (
@@ -39,6 +39,12 @@ function Index() {
   };
 
   const examples = [
+    {
+      title: '3D Segmentation Rendering',
+      url: '/3DSegRendering',
+      text:
+      'Use VTK.js a 3D model from RTStruct files that has sections of the brain highlighted in different colors.'
+    },
     {
       title: 'Basic Usage',
       url: '/basic',
@@ -96,12 +102,6 @@ function Index() {
       text:
         'Generating vtkjs imagedata from cornerstone images and displaying them in a VTK viewport.',
     },
-    {
-      title: 'VTK Test',
-      url: '/testVtk',
-      text:
-      'Testing to get vtkjs working'
-    }
   ];
 
   const exampleComponents = examples.map(e => {
@@ -165,7 +165,7 @@ function AppRouter() {
   const rotatableCrosshairs = () =>
     Example({ children: <VTKRotatableCrosshairsExample /> });
   const fourUp = () => Example({ children: <VTK4UpExample /> });
-  const testVtk = () => Example({ children: <VtkTest /> });
+  const segRendering = () => Example({ children: <VTK3DSegRenderingExample /> });
   const rotateMPR = () => Example({ children: <VTKMPRRotateExample /> });
   const volumeRendering = () =>
     Example({ children: <VTKVolumeRenderingExample /> });
@@ -188,7 +188,7 @@ function AppRouter() {
         <Route exact path="/rotate" render={rotateMPR} />
         <Route exact path="/volume-rendering" render={volumeRendering} />
         <Route exact path="/cornerstone-load-image-data" render={loadImage} />
-        <Route exact path='/testVtk' render={testVtk} />
+        <Route exact path='/3DSegRendering' render={segRendering} />
         <Route exact component={Index} />
       </Switch>
     </Router>

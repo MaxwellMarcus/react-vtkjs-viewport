@@ -1,6 +1,8 @@
 const path = require('path');
 const webpack = require('webpack');
 const autoprefixer = require('autoprefixer');
+
+const CopyPlugin = require('copy-webpack-plugin')
 // Plugins
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer')
   .BundleAnalyzerPlugin;
@@ -81,12 +83,31 @@ module.exports = (env, argv) => {
     node: {
       // https://github.com/webpack-contrib/style-loader/issues/200
       Buffer: false,
+      fs: 'empty'
     },
     plugins: [
       // Uncomment to generate bundle analyzer
       // new BundleAnalyzerPlugin(),
       // Show build progress
       new webpack.ProgressPlugin(),
+      new CopyPlugin([
+        {
+        from: path.join(__dirname, 'node_modules', 'itk', 'WebWorkers'),
+        to: path.join(__dirname, 'dist', 'itk', 'WebWorkers'),
+        },
+        {
+        from: path.join(__dirname, 'node_modules', 'itk', 'ImageIOs'),
+        to: path.join(__dirname, 'dist', 'itk', 'ImageIOs'),
+        },
+        {
+        from: path.join(__dirname, 'node_modules', 'itk', 'PolyDataIOs'),
+        to: path.join(__dirname, 'dist', 'itk', 'PolyDataIOs'),
+        },
+        {
+        from: path.join(__dirname, 'node_modules', 'itk', 'MeshIOs'),
+        to: path.join(__dirname, 'dist', 'itk', 'MeshIOs'),
+        },
+      ])
       // Clear dist between builds
       // new CleanWebpackPlugin(),
     ],
